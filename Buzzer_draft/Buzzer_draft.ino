@@ -1,5 +1,7 @@
+#define USE_ARDUINO_INTERRUPTS true 
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <PulseSensorPlayground.h> 
 
 // Replace with your network credentials
 const char* ssid     = "REPLACE_WITH_YOUR_SSID";
@@ -12,6 +14,7 @@ int pulseSignal;              // data received from the pulsemeter
 int pulseThreshold = 550;     // threshold that determines, which "tump" to consider as a heartbeat 
 int lowerPulse = 600;         // threshold for the lower boundary of the pulse
 int higherPulse = 800;        // threshold for the higher boundary of the pulse
+PulseSensorPlayground pulseSensor;
 
 int boardLED = 13;            // On-board arduino LED 
 int greenLED = 26;             // pin to which the green LED is connected
@@ -51,6 +54,15 @@ void setup() {
   pinMode(gameButton, INPUT_PULLUP);
   pinMode(muteButton, INPUT_PULLUP);
   Serial.begin(115200);
+  
+  pulseSensor.analogInput(pulseSensorPin);
+  pulseSensor.blinkOnPulse(greenLED);       //auto-magically blink Arduino's LED with heartbeat.
+  pulseSensor.setThreshold(pulseThreshold);
+  
+  if (pulseSensor.begin()) {
+    Serial.println("We created a pulseSensor Object !");  //This prints one time at Arduino power-up,  or on Arduino reset.  
+  }
+  
   delay(2000);
   Serial.print("ESP32 started");
 
@@ -59,22 +71,33 @@ void setup() {
 void loop() {
   
   // code used for the pulsemeter
-  pulseSignal = analogRead(pulseSensorPin);
-  Serial.println(pulseSignal);
+  int myBPM = pulseSensor.getBeatsPerMinute();  // Calls function on our pulseSensor object that returns BPM as an "int".
+                                               // "myBPM" hold this BPM value now. 
 
-  if(pulseSignal > pulseThreshold) {
-    Serial.println("Pulse detected: " + pulseSignal);
+  if (pulseSensor.sawStartOfBeat()) {            // Constantly test to see if "a beat happened". 
+  Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
+  Serial.print("BPM: ");                        // Print phrase "BPM: " 
+  Serial.println(myBPM);                        // Print the value inside of myBPM. 
+  }
 
-    if(pulseSignal > higherPulse) {
-      digitalWrite(redLED,HIGH);
-      Serial.println("Your pulse is too high: " + pulseSignal);
+  delay(20);  
+  
+  // pulseSignal = analogRead(pulseSensorPin);
+  // Serial.println(pulseSignal);
 
-    } else if(pulseSignal < lowerPulse) {
-      digitalWrite(redLED,LOW);
-      Serial.println("Your pulse is too low: " + pulseSignal);
-    } 
-  } 
-  delay(100);
+  // if(pulseSignal > pulseThreshold) {
+  //   Serial.println("Pulse detected: " + pulseSignal);
+
+  //   if(pulseSignal > higherPulse) {
+  //     digitalWrite(redLED,HIGH);
+  //     Serial.println("Your pulse is too high: " + pulseSignal);
+
+  //   } else if(pulseSignal < lowerPulse) {
+  //     digitalWrite(redLED,LOW);
+  //     Serial.println("Your pulse is too low: " + pulseSignal);
+  //   } 
+  // } 
+  // delay(100);
 
   // code used for the microphone
   long sum = 0;
