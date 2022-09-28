@@ -1,3 +1,9 @@
+#include <WiFi.h>
+#include <WiFiUdp.h>
+
+// Replace with your network credentials
+const char* ssid     = "REPLACE_WITH_YOUR_SSID";
+const char* password = "REPLACE_WITH_YOUR_PASSWORD";
 
 const int buzzerPin = 33;     // pin to which the buzzer is connected
 
@@ -16,19 +22,35 @@ int soundThreshold = 100;     // threshold used for averaging the "noisy" sound 
 int clappingThreshold = 600;  // threshold used to detect if the sound received by the microphone is a clap (or could be something else)
 
 int gameButton = 0;           // pin to which the button used for the mental stimulation game is connected
-int lastStateGame = LOW;
+int lastStateGame = LOW;      // last state of the gameButton (initally set to LOW)
 int muteButton = 0;           // pin to which the button used for muting the mental stimulation game is connected
-int lastStateMute = LOW;
+int lastStateMute = LOW;      // last state of the muteButton (initally set to LOW)
+
 
 // put your setup code here, to run once:
 void setup() {
+
+  // WIFI setup
+  // Serial.print("Connecting to ");
+  // Serial.println(ssid);
+  // WiFi.begin(ssid, password);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
+  // // Print local IP address and start web server
+  // Serial.println("");
+  // Serial.println("WiFi connected.");
+  // Serial.println("IP address: ");
+  // Serial.println(WiFi.localIP());
+  
+  // set all of the sensors connected to specific pins
   pinMode(buzzerPin, OUTPUT);
   pinMode(pulseSensorPin, OUTPUT);
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(gameButton, INPUT_PULLUP);
   pinMode(muteButton, INPUT_PULLUP);
-
   Serial.begin(115200);
   delay(2000);
   Serial.print("ESP32 started");
@@ -44,11 +66,11 @@ void loop() {
     Serial.println("Pulse detected: " + pulseSignal);
 
     if(pulseSignal > higherPulse) {
-      digitalWrite(boardLED,HIGH);
+      digitalWrite(redLED,HIGH);
       Serial.println("Your pulse is too high: " + pulseSignal);
 
     } else if(pulseSignal < lowerPulse) {
-      digitalWrite(boardLED,LOW);
+      digitalWrite(redLED,LOW);
       Serial.println("Your pulse is too low: " + pulseSignal);
     } 
   } 
@@ -69,17 +91,17 @@ void loop() {
   delay(100);
 
   // code used for the buttons
-  currentStateGame = digitalRead(gameButton);
-  currentStateMute = digitalRead(muteButton);
+  int currentStateGame = digitalRead(gameButton);
+  int currentStateMute = digitalRead(muteButton);
   
   if(lastStateGame == LOW && currentStateGame == HIGH) {  // detects if the button is clicked 
-    Serial.println("The game button was clicked !!")
+    Serial.println("The game button was clicked !!");
     lastStateGame = currentStateGame;    
   }
 
   if (lastStateMute == LOW && currentStateMute == HIGH) {
-     Serial.println("The mute button was clicked !!")
-     lastStateMute = currentStateMute
+     Serial.println("The mute button was clicked !!");
+     lastStateMute = currentStateMute;
   }
   delay(100);
 
