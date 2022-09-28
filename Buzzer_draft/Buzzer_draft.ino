@@ -7,23 +7,23 @@ const char* password = "REPLACE_WITH_YOUR_PASSWORD";
 
 const int buzzerPin = 33;     // pin to which the buzzer is connected
 
-int const pulseSensorPin = 0; // pin to which the pulsemeter is connected
+int const pulseSensorPin = 36; // pin to which the pulsemeter is connected
 int pulseSignal;              // data received from the pulsemeter
 int pulseThreshold = 550;     // threshold that determines, which "tump" to consider as a heartbeat 
 int lowerPulse = 600;         // threshold for the lower boundary of the pulse
 int higherPulse = 800;        // threshold for the higher boundary of the pulse
 
 int boardLED = 13;            // On-board arduino LED 
-int greenLED = 0;             // pin to which the green LED is connected
-int redLED = 0;               // pin to which the red LED is connected
+int greenLED = 26;             // pin to which the green LED is connected
+int redLED = 25;               // pin to which the red LED is connected
 
-int microphonePin = 0;        // pin to which the microphone is connected
+int microphonePin = 34;        // pin to which the microphone is connected
 int soundThreshold = 100;     // threshold used for averaging the "noisy" sound received from the microphone
-int clappingThreshold = 600;  // threshold used to detect if the sound received by the microphone is a clap (or could be something else)
+int clappingThreshold = 800;  // threshold used to detect if the sound received by the microphone is a clap (or could be something else)
 
-int gameButton = 0;           // pin to which the button used for the mental stimulation game is connected
+int gameButton = 27;           // pin to which the button used for the mental stimulation game is connected
 int lastStateGame = LOW;      // last state of the gameButton (initally set to LOW)
-int muteButton = 0;           // pin to which the button used for muting the mental stimulation game is connected
+int muteButton = 14;           // pin to which the button used for muting the mental stimulation game is connected
 int lastStateMute = LOW;      // last state of the muteButton (initally set to LOW)
 
 
@@ -46,7 +46,6 @@ void setup() {
   
   // set all of the sensors connected to specific pins
   pinMode(buzzerPin, OUTPUT);
-  pinMode(pulseSensorPin, OUTPUT);
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(gameButton, INPUT_PULLUP);
@@ -61,6 +60,7 @@ void loop() {
   
   // code used for the pulsemeter
   pulseSignal = analogRead(pulseSensorPin);
+  Serial.println(pulseSignal);
 
   if(pulseSignal > pulseThreshold) {
     Serial.println("Pulse detected: " + pulseSignal);
